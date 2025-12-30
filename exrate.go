@@ -58,7 +58,7 @@ func validateArgs(supported_currencies []string) (float64, string, []string, err
 	return amount, currency, conversions, nil
 }
 
-func updateExchangeRates(url string) error{
+func updateExchangeRates(url, config_path string) error{
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Printf("API connection error: %s\n", err)
@@ -77,7 +77,9 @@ func updateExchangeRates(url string) error{
 		return err
 	}
 
-	file, err := os.Create("exrate.json")
+	err = os.Mkdir(config_path, 0755)
+
+	file, err := os.Create(config_path + "/exrate.json")
 	if err != nil {
 		fmt.Printf("Error creating file: %s\n", err)
 		return err
@@ -93,8 +95,8 @@ func updateExchangeRates(url string) error{
 	return nil
 }
 
-func getExchangeRates() (*ExchangeRates, error){
-	file, err := os.Open("exrate.json")
+func getExchangeRates(config_path string) (*ExchangeRates, error){
+	file, err := os.Open(config_path + "/exrate.json")
 	if err != nil{
 		fmt.Printf("Error opening file: %s\n", err)
 		return nil, err
@@ -127,12 +129,19 @@ func printHelp(supported_currencies []string){
 
 func main(){
 
-	err := updateExchangeRates("https://open.er-api.com/v6/latest/USD")
+	home_dir, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Printf("Error getting home directory: %s\n", err)
+		return
+	}
+	config_path := fmt.Sprintf("%s/.config/exrate/", home_dir)
+
+	err = updateExchangeRates("https://open.er-api.com/v6/latest/USD", config_path)
 	if err != nil{
 		fmt.Printf("Will try to use information from old requests... (Offline mode)\n")
 	}
 
-	exRate, err := getExchangeRates()
+	exRate, err := getExchangeRates(config_path)
 	if err != nil{
 		fmt.Printf("All hope is lost. You NEED Internet :(\n")
 		return
