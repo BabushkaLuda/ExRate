@@ -1,5 +1,5 @@
 # ExRate
-This CLI uses <a href="https://www.exchangerate-api.com">This API</a> to show you the exchange rate of your chosen currency.
+This CLI application uses <a href="https://www.exchangerate-api.com">This API</a> to show you the exchange rate of your chosen currency.
 <br>It makes an API call on startup. If it fails to get a response, it loads the last known exchange rate from the config file located at ~/.config/exrate/exrate.json.
 ## Usage:
 ```
